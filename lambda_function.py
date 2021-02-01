@@ -1,7 +1,7 @@
 import json
 from comm_env.CommonFunction import Error_Msg
 from prod_env import HttpRequestFunction
-from prod_env import DynamoDBAccessFunciton
+from prod_env.DynamoDBAccessFunciton import Dynamo_Access
 
 """test data function"""
 from test_env import signup_test
@@ -16,6 +16,7 @@ def lambda_handler(event, context):
 
         print("event info:{}".format(event))
         http_req = HttpRequestFunction.Http_Request(event)
+        dynamo_acs = Dynamo_Access(http_req.request, http_req.route, http_req.body)
         
         print("##lambda_handler end")
 
