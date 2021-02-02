@@ -22,9 +22,14 @@ class Dynamo_Access:
             if route == "/costs/{yyyy}/{MM}":
                 self.exe_result.append(get_req.costs_get())
         elif request == "PUT":
-            pass
+            put_req = Put_Request(body, group_id, data_id, userid)
+            if route == "/costs":
+                put_req.costs_put()
         elif request == "DELETE":
-            pass
+            put_req = Del_Request(group_id, data_id)
+            if route == "/costs":
+                put_req.costs_del()
+            
 
     def return_result(self):
         return self.exe_result
@@ -36,21 +41,22 @@ class Post_Request:
         self.group_id = str(group_id)
         self.data_id = data_id
         self.user_id = userid
+        self.date_now = datetime.datetime.now()
+        self.date = self.body['date'].split('/')[0] + self.body['date'].split('/')[1] + self.body['date'].split('/')[2]
 
     def costs_post(self):
         Value = self.body['value']
         Category = self.body['category']
         Comment = self.body['comment']
         GroupID = "COSTS_" + self.group_id
-        Date = self.body['date'].split('/')[0] + self.body['date'].split('/')[
-            1] + self.body['date'].split('/')[2] + "_" + datetime.datetime.now().strftime('%H%M%S%f')
+        Date = self.date + "_" + self.date_now.strftime('%H%M%S%f')
 
         putResponse = table.put_item(
             Item={
                 'ID': GroupID,
                 'DATA_TYPE': Date,
                 'DATA_VALUE': Value,
-                'TIMESTAMP': datetime.datetime.now().strftime('20%y%m%d%H%M%S%f'),
+                'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
                 'COMMENT': Comment,
                 'CATEGORY': Category,
                 'USER': self.user_id
@@ -92,8 +98,48 @@ class Get_Request:
 
 
 class Put_Request:
-    pass
+    def __init__(self, body, group_id, data_id, userid):
+        self.body = json.loads(body)
+        self.date_now = datetime.datetime.now()
+        self.group_id = str(group_id)
+        self.data_id = data_id
+        self.user_id = userid
+        self.date = self.body['date'].split('/')[0] + self.body['date'].split('/')[1] + self.body['date'].split('/')[2]
+    
+    def costs_put(self):
+        Value = self.body['value']
+        Category = self.body['category']
+        Comment = self.body['comment']
+        GroupID = "COSTS_" + self.group_id
+        Data = self.data_id
 
+        putResponse = table.put_item(
+            Item={
+                'ID': GroupID,
+                'DATA_TYPE': Data,
+                'DATA_VALUE': Value,
+                'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
+                'COMMENT': Comment,
+                'CATEGORY': Category,
+                'USER': self.user_id
+            }
+        )
+        print(putResponse)
 
 class Del_Request:
-    pass
+    def __init__(self, group_id, data_id):
+        self.group_id = str(group_id)
+        self.data_id = data_id
+
+    def costs_del(self):
+        GroupID = "COSTS_" + self.group_id
+        putResponse = table.delete_item(
+            Key={
+                'ID': GroupID,
+                'DATA_TYPE': self.data_id,
+            }
+        )
+        print("##delete dynamo data.")
+        print(putResponse)
+
+
