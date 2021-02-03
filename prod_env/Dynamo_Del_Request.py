@@ -13,7 +13,7 @@ class Del_Request:
         self.group_id = str(group_id)
         self.data_id = data_id
 
-    def costs_del(self):
+    def costs(self):
         GroupID = "COSTS_" + self.group_id
         putResponse = table.delete_item(
             Key={
@@ -24,7 +24,7 @@ class Del_Request:
         print("##delete dynamo data.")
         print(putResponse)
 
-    def todos_del(self):
+    def todos(self):
         GroupID = "TODOS_" + self.group_id
         putResponse = table.delete_item(
             Key={
@@ -34,3 +34,15 @@ class Del_Request:
         )
         print("##delete dynamo data.")
         print(putResponse)
+    
+    def calendars(self):
+        GroupID = "CALENDARS_" + self.group_id
+        putResponse = table.delete_item(
+            Key={
+                'ID': GroupID,
+                'DATA_TYPE': self.data_id,
+            }
+        )
+        print("##delete dynamo data.")
+        print(putResponse)
+    

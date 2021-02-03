@@ -1,3 +1,4 @@
+
 import boto3
 from boto3.dynamodb.conditions import Key  # キーの取得
 import datetime  # date宣言のインポート
@@ -14,7 +15,7 @@ class Post_Request:
         self.user_id = userid
         self.date_now = datetime.datetime.now()
 
-    def costs_post(self):
+    def costs(self):
         Value = self.body['value']
         Category = self.body['category']
         Comment = self.body['comment']
@@ -37,7 +38,7 @@ class Post_Request:
 
         print(putResponse)
 
-    def categories_post(self):
+    def categories(self):
         GroupID = "CATEGORIES_" + self.group_id
         Date = "No_" + str(self.body['id'])
         Value = self.body['name']
@@ -55,7 +56,7 @@ class Post_Request:
 
         print(putResponse)
 
-    def todos_post(self):
+    def todos(self):
         Comment = self.body['comment']
         GroupID = "TODOS_" + self.group_id
         Value = self.body['name']
@@ -78,5 +79,23 @@ class Post_Request:
 
         print(putResponse)
 
-    def calendars_post(self):
-        pass
+    def calendars(self):
+        GroupID = "CALENDARS_" + self.group_id
+        Value = self.body['name']
+        self.date = self.body['date'].split(
+            '/')[0] + self.body['date'].split('/')[1] + self.body['date'].split('/')[2]
+        Date = self.date + "_" + self.date_now.strftime('%H%M%S%f')
+        Comment = self.body['comment']
+
+        putResponse = table.put_item(
+            Item={
+                'ID': GroupID,
+                'DATA_TYPE': Date,
+                'DATA_VALUE': Value,
+                'COMMENT': Comment,
+                'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
+                'USER': self.user_id
+            }
+        )
+
+        print(putResponse)

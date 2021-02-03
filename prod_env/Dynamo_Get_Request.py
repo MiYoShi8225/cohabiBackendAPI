@@ -14,7 +14,7 @@ class Get_Request:
         self.date_sort = date_sort
         self.bodyItems = []
 
-    def costs_get(self):
+    def costs(self):
         GroupID = "COSTS_" + self.group_id
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(
@@ -37,7 +37,7 @@ class Get_Request:
 
         return self.bodyItems
 
-    def categories_get(self):
+    def categories(self):
         GroupID = "CATEGORIES_" + self.group_id
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").begins_with("No"))
@@ -53,7 +53,7 @@ class Get_Request:
 
         return self.bodyItems
 
-    def todos_get(self):
+    def todos(self):
         GroupID = "TODOS_" + self.group_id
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(GroupID))
@@ -71,6 +71,25 @@ class Get_Request:
                 "name": f["DATA_VALUE"],
                 "comment": f["COMMENT"],
                 "done": STATUS
+            })
+
+        return self.bodyItems
+
+    def calendars(self):
+        GroupID = "CALENDARS_" + self.group_id
+        dynamoData = table.query(
+            KeyConditionExpression=Key("ID").eq(GroupID))
+
+        for f in dynamoData["Items"]:
+            tmp = f["DATA_TYPE"].split('_')[0]
+            # tmp[:4]はスタート0配列目から4ステップまで、tmp[4:6]は4配列目から6ステップまで、tmp[6:]はエンドから6配列目まで
+            date_reverce_proc = tmp[:4] + "/" + tmp[4:6] + "/" + tmp[6:]
+
+            self.bodyItems.append({
+                "date": date_reverce_proc,
+                "name": f["DATA_VALUE"],
+                "comment": f["COMMENT"],
+                "user": f["USER"]
             })
 
         return self.bodyItems

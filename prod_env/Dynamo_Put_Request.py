@@ -15,7 +15,7 @@ class Put_Request:
         self.data_id = data_id
         self.user_id = userid
 
-    def costs_put(self):
+    def costs(self):
         Value = self.body['value']
         Category = self.body['category']
         Comment = self.body['comment']
@@ -35,7 +35,7 @@ class Put_Request:
         )
         print(putResponse)
 
-    def todos_put(self):
+    def todos(self):
         Comment = self.body['comment']
         GroupID = "TODOS_" + self.group_id
         Value = self.body['name']
@@ -54,6 +54,25 @@ class Put_Request:
                 'COMMENT': Comment,
                 'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
                 'STATUS': Status
+            }
+        )
+
+        print(putResponse)
+
+    def calendars(self):
+        GroupID = "CALENDARS_" + self.group_id
+        Value = self.body['name']
+        Date = self.data_id
+        Comment = self.body['comment']
+
+        putResponse = table.put_item(
+            Item={
+                'ID': GroupID,
+                'DATA_TYPE': Date,
+                'DATA_VALUE': Value,
+                'COMMENT': Comment,
+                'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
+                'USER': self.user_id
             }
         )
 
