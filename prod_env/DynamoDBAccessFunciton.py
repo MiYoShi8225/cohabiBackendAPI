@@ -1,4 +1,5 @@
 
+from logging import disable
 import boto3
 from boto3.dynamodb.conditions import Key  # キーの取得
 import datetime  # date宣言のインポート
@@ -11,16 +12,19 @@ table = dynamodb.Table("COHABI-USER-DATABASE")  # dynamoテーブル名
 class Dynamo_Access:
     def __init__(self, request, route, body, group_id, data_id, userid, date_sort):
         self.exe_result = []
-        #self.exe_result["message"] = "##success: request:{} route:{}".format(request, route)
-
         if request == "POST":
             post_req = Post_Request(body, group_id, data_id, userid)
             if route == "/costs":
                 post_req.costs_post()
+            if route == "/categories":
+                post_req.categories_post()
         elif request == "GET":
             get_req = Get_Request(group_id, date_sort)
             if route == "/costs/{yyyy}/{MM}":
                 self.exe_result.append(get_req.costs_get())
+            if route == "/categories":
+                self.exe_result.append(get_req.categories_get())
+
         elif request == "PUT":
             put_req = Put_Request(body, group_id, data_id, userid)
             if route == "/costs":
@@ -42,13 +46,14 @@ class Post_Request:
         self.data_id = data_id
         self.user_id = userid
         self.date_now = datetime.datetime.now()
-        self.date = self.body['date'].split('/')[0] + self.body['date'].split('/')[1] + self.body['date'].split('/')[2]
+        
 
     def costs_post(self):
         Value = self.body['value']
         Category = self.body['category']
         Comment = self.body['comment']
         GroupID = "COSTS_" + self.group_id
+        self.date = self.body['date'].split('/')[0] + self.body['date'].split('/')[1] + self.body['date'].split('/')[2]
         Date = self.date + "_" + self.date_now.strftime('%H%M%S%f')
 
         putResponse = table.put_item(
@@ -65,6 +70,23 @@ class Post_Request:
 
         print(putResponse)
 
+    def categories_post(self):
+        GroupID = "CATEGORIES_" + self.group_id
+        Date = "No_" + str(self.body['id'])
+        Value = self.body['name']
+        Disabled = self.body['disabled']
+
+        putResponse = table.put_item(
+            Item={
+                'ID': GroupID,
+                'DATA_TYPE': Date,
+                'DATA_VALUE': Value,
+                'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
+                'DISABLED': Disabled
+            }
+        )
+
+        print(putResponse)
 
 class Get_Request:
     def __init__(self, group_id, date_sort):
@@ -92,6 +114,24 @@ class Get_Request:
                 "category": f["CATEGORY"],
                 "comment": f["COMMENT"],
                 "timestamp": f["TIMESTAMP"]
+            })
+        
+        return bodyItems
+    
+    def categories_get(self):
+        GroupID = "CATEGORIES_" + self.group_id
+        dynamoData = table.query(
+            KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").begins_with("No"))
+        
+        bodyItems=[]
+
+        for f in dynamoData["Items"]:
+            #tmp = f["DATA_TYPE"].split('_')[0]
+
+            bodyItems.append({
+                "id": f["DATA_TYPE"].split('_')[1],
+                "name": f["DATA_VALUE"],
+                "disabled": f["DISABLED"]
             })
         
         return bodyItems
