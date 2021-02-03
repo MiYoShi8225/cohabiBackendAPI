@@ -3,12 +3,9 @@ from comm_env.CommonFunction import Return_Msg
 from prod_env import HttpRequestFunction
 from prod_env.DynamoDBAccessFunciton import Dynamo_Access
 
-"""test data function"""
-
 
 def lambda_handler(event, context):
     try:
-        routekey_split = []
         print("##lambda_handler start")
 
         print("##event info:\n{}\n".format(event))
@@ -20,8 +17,9 @@ def lambda_handler(event, context):
         )
         
         message = "##success:request:{} route:{}".format(http_req.request, http_req.route)
-        return Return_Msg.return_successJson(message, dynamo_acs.return_result())
         print("##lambda_handler end")
+        return Return_Msg.return_successJson(message, dynamo_acs.return_result())
+        
 
     except Exception as e:
         print("##lambda_handler Error")

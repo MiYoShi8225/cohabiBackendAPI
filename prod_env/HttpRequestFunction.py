@@ -1,7 +1,3 @@
-# file name: cohabiMePost.py
-#    author: miyoshi
-#      date: 2020/11/12
-#    update:
 
 class Http_Request:
     def __init__(self, event_param):
