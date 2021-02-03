@@ -19,7 +19,7 @@ def lambda_handler(event, context):
             ), http_req.query_DataID(), http_req.userid, http_req.query_datesort()
         )
         
-        message = "##success:\nrequest:{} route:{}".format(http_req.request, http_req.route)
+        message = "##success:request:{} route:{}".format(http_req.request, http_req.route)
         return Return_Msg.return_successJson(message, dynamo_acs.return_result())
         print("##lambda_handler end")
 
