@@ -99,3 +99,29 @@ class Post_Request:
         )
 
         print(putResponse)
+
+    def groups(self):
+        Name = self.body['name']
+        GroupID = "GROUPS_" + self.date_now.strftime('20%y%m%d%H%M%S%f')
+
+        putResponse = table.put_item(
+            Item={
+                'ID': GroupID,
+                'DATA_TYPE': "name",
+                'DATA_VALUE': Name
+            }
+        )
+
+        print(putResponse)
+        
+        Users = [self.user_id]
+        putResponse2 = table.put_item(
+            Item={
+                'ID': GroupID,
+                'DATA_TYPE': "users",
+                'DATA_VALUE': Users
+            }
+        )
+
+        print(putResponse2)
+

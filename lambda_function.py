@@ -10,7 +10,7 @@ def lambda_handler(event, context):
 
         print("##event info:\n{}\n".format(event))
         http_req = HttpRequestFunction.Http_Request(event)
-        dynamo_acs = []
+        
         dynamo_acs = Dynamo_Access(
             http_req.request, http_req.route, http_req.body, http_req.query_GroupID(
             ), http_req.query_DataID(), http_req.userid, http_req.query_datesort()

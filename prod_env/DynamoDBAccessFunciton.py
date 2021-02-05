@@ -12,7 +12,7 @@ from prod_env.Dynamo_Del_Request import Del_Request
 
 class Dynamo_Access:
     def __init__(self, request, route, body, group_id, data_id, userid, date_sort):
-        self.exe_result = []
+        self.exe_result = dict()
         if request == "POST":
             post_req = Post_Request(body, group_id, data_id, userid)
 
@@ -24,18 +24,22 @@ class Dynamo_Access:
                 post_req.todos()
             if route == "/calendars":
                 post_req.calendars()
+            if route == "/groups":
+                post_req.groups()
 
         elif request == "GET":
             get_req = Get_Request(group_id, date_sort)
 
             if route == "/costs/{yyyy}/{MM}":
-                self.exe_result.append(get_req.costs())
+                self.exe_result = get_req.costs()
             if route == "/categories":
-                self.exe_result.append(get_req.categories())
+                self.exe_result = get_req.categories()
             if route == "/todos":
-                self.exe_result.append(get_req.todos())
+                self.exe_result = get_req.todos()
             if route == "/calendars":
-                self.exe_result.append(get_req.calendars())
+                self.exe_result = get_req.calendars()
+            if route == "/groups":
+                self.exe_result = get_req.groups()
 
         elif request == "PUT":
             put_req = Put_Request(body, group_id, data_id, userid)
@@ -46,6 +50,8 @@ class Dynamo_Access:
                 put_req.todos()
             if route == "/calendars":
                 put_req.calendars()
+            if route == "/groups":
+                put_req.groups()
 
         elif request == "DELETE":
             put_req = Del_Request(group_id, data_id)

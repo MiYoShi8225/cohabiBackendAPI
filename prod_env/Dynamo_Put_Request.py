@@ -7,6 +7,7 @@ import json
 dynamodb = boto3.resource('dynamodb')  # AWSサービスのリソースタイプの宣言
 table = dynamodb.Table("COHABI-USER-DATABASE")  # dynamoテーブル名
 
+
 class Put_Request:
     def __init__(self, body, group_id, data_id, userid):
         self.body = json.loads(body)
@@ -77,3 +78,49 @@ class Put_Request:
         )
 
         print(putResponse)
+
+    def groups(self):
+        GroupID = "GROUPS_" + self.group_id
+        Name = self.body['name']
+        add_users = self.body['add_user']
+        remove_users = self.body['remove_user']
+
+        putResponse = table.put_item(
+            Item={
+                'ID': GroupID,
+                'DATA_TYPE': "name",
+                'DATA_VALUE': Name
+            }
+        )
+
+        print(putResponse)
+
+        dynamoData = table.query(
+            KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").eq("users"))
+
+        Users = []
+        for f in dynamoData["Items"]:
+            Users = f['DATA_VALUE']
+
+        if add_users.len() == 0 & remove_users.len() == 0:
+            return
+
+        """
+        闇するぎるグループにユーザーを追加するする処理(めっちゃ保留中)
+        if add_users.len() != 0:
+            Users.extend(add_users)
+        """
+
+        if remove_users.len() != 0:
+            for remove_user in remove_users:
+                Users.remove(remove_user)
+
+            putResponse2 = table.put_item(
+                Item={
+                    'ID': GroupID,
+                    'DATA_TYPE': "users",
+                    'DATA_VALUE': Users
+                }
+            )
+
+            print(putResponse2)
