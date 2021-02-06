@@ -145,10 +145,10 @@ class Get_Request:
         """
 
         dynamoData = table.query(
-            KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").eq("name"))
+            KeyConditionExpression=Key("ID").eq(GroupID))
         
         for f in dynamoData["Items"]:
-            if f["DATA_TYPE"] == "name":
+            if f["DATA_TYPE"] == "groupdata":
                 Name = f['DATA_VALUE']
             if f["DATA_TYPE"] == "users":
                 Users = f['DATA_VALUE']
@@ -162,8 +162,8 @@ class Get_Request:
 
             name = None
             for f in dynamoData3["Items"]:
-                if f["DATA_TYPE"] == "name":
-                    name = f["DATA_VALUE"]
+                if f["DATA_TYPE"] == "userdata":
+                    name = f["DATA_VALUE"]["name"]
             
             Users_data.append({
                 "id": User,
