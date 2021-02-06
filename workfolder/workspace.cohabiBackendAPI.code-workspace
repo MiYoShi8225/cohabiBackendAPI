@@ -1,7 +1,7 @@
 {
 	"folders": [
 		{
-			"path": "../cohabiBackendAPI"
+			"path": "../cohabiBackendAPILambda"
 		},
 		{
 			"path": "../cohabiCognitoLambda"
