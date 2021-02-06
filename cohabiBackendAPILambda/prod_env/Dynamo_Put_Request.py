@@ -79,7 +79,7 @@ class Put_Request:
         )
 
         print(putResponse)
-    
+
     def me(self):
         UserID = "USERS_" + self.user_id
         Data_type = "userdata"
@@ -90,7 +90,7 @@ class Put_Request:
             Item={
                 'ID': UserID,
                 'DATA_TYPE': Data_type,
-                'DATA_VALUE':{
+                'DATA_VALUE': {
                     "name": Name,
                     "email": email
                 }
@@ -101,41 +101,78 @@ class Put_Request:
 
     def groups(self):
         GroupID = "GROUPS_" + self.group_id
-        Name = self.body['name']
-        add_users = self.body['add_user']
-        remove_users = self.body['remove_user']
+        add_users = []
+        remove_users = []
 
-        putResponse = table.put_item(
-            Item={
-                'ID': GroupID,
-                'DATA_TYPE': "groupdata",
-                'DATA_VALUE': {
-                    "name": Name
+        if "name" in self.body:
+            Name = self.body['name']
+            putResponse = table.put_item(
+                Item={
+                    'ID': GroupID,
+                    'DATA_TYPE': "groupdata",
+                    'DATA_VALUE': {
+                        "name": Name
+                    }
                 }
-            }
-        )
+            )
+            print(putResponse)
 
-        print(putResponse)
+        if "add_user" in self.body:
+            add_users = self.body['add_user']
+        if "remove_user" in self.body:
+            remove_users = self.body['remove_user']
 
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").eq("users"))
 
         Users = []
-        for f in dynamoData["Items"]:
-            Users.append(f['DATA_VALUE'])
 
-        if add_users.len() == 0 & remove_users.len() == 0:
+        for f in dynamoData["Items"]:
+            Users.extend(f['DATA_VALUE'])
+
+        if len(add_users) == 0 & len(remove_users) == 0:
             return
 
-        
-        #user追加
-        if add_users.len() != 0:
+        # user追加
+        if len(add_users) != 0:
             Users.extend(add_users)
-        
-        #user削除
-        if remove_users.len() != 0:
+            for user in add_users:
+                userID = "USERS_" + user
+                dynamoData = table.query(
+                    KeyConditionExpression=Key("ID").eq(userID) & Key("DATA_TYPE").eq("groups"))
+
+                groups = []
+                groups.extend(dynamoData["Items"][0]["DATA_VALUE"])
+                groups.append(self.group_id)
+
+                putResponse = table.put_item(
+                    Item={
+                        'ID': userID,
+                        'DATA_TYPE': "groups",
+                        'DATA_VALUE': groups
+                    }
+                )
+
+        # user削除
+        if len(remove_users) != 0:
             for remove_user in remove_users:
                 Users.remove(remove_user)
+                for user in add_users:
+                    userID = "USERS_" + user
+                    dynamoData = table.query(
+                        KeyConditionExpression=Key("ID").eq(userID) & Key("DATA_TYPE").eq("groups"))
+
+                    groups = []
+                    groups.extend(dynamoData["Items"][0]["DATA_VALUE"])
+                    groups.remove(self.group_id)
+
+                    putResponse = table.put_item(
+                        Item={
+                            'ID': userID,
+                            'DATA_TYPE': "groups",
+                            'DATA_VALUE': groups
+                        }
+                    )
 
         putResponse2 = table.put_item(
             Item={

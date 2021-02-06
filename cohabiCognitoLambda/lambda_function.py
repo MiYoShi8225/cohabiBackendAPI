@@ -18,6 +18,7 @@ def lambda_handler(event, context):
 
         userID = "USERS_" + userName
 
+        #userの情報をDynamoに追加
         putResponse = table.put_item(
             Item={
                 'ID': userID,
@@ -31,6 +32,7 @@ def lambda_handler(event, context):
         )
         print(putResponse)
 
+        #userのdefaultグループをDynamoに追加
         putResponse = table.put_item(
             Item={
                 'ID': userID,
@@ -44,6 +46,7 @@ def lambda_handler(event, context):
 
         GroupID = "GROUPS_" + userName
 
+        #defaultグループをDynamoに追加
         putResponse = table.put_item(
             Item={
                 'ID': GroupID,
@@ -55,6 +58,7 @@ def lambda_handler(event, context):
         )
         print(putResponse)
 
+        #defaultグループにuserを追加
         putResponse = table.put_item(
             Item={
                 'ID': GroupID,
@@ -66,6 +70,7 @@ def lambda_handler(event, context):
         )
         print(putResponse)
 
+        #cognitoはeventをreturnで返す必要あり
         return event
 
     except Exception as e:
