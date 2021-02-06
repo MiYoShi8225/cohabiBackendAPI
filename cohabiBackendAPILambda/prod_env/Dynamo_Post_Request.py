@@ -102,7 +102,8 @@ class Post_Request:
 
     def groups(self):
         Name = self.body['name']
-        GroupID = "GROUPS_" + self.date_now.strftime('20%y%m%d%H%M%S%f')
+        group_id = self.date_now.strftime('20%y%m%d%H%M%S%f')
+        GroupID = "GROUPS_" + group_id
 
         putResponse = table.put_item(
             Item={
@@ -126,4 +127,23 @@ class Post_Request:
         )
 
         print(putResponse2)
+
+        userID = "USERS_" + self.user_id
+
+        dynamoData = table.query(
+                    KeyConditionExpression=Key("ID").eq(userID) & Key("DATA_TYPE").eq("groups"))
+
+        groups = []
+        groups.extend(dynamoData["Items"][0]["DATA_VALUE"])
+        groups.append(str(group_id))
+
+        putResponse3 = table.put_item(
+            Item={
+                'ID': userID,
+                'DATA_TYPE': "groups",
+                'DATA_VALUE': groups
+            }
+        )
+
+        print(putResponse3)
 

@@ -44,8 +44,6 @@ class Get_Request:
             KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").begins_with("No"))
 
         for f in dynamoData["Items"]:
-            #tmp = f["DATA_TYPE"].split('_')[0]
-
             self.bodyItems.update({
                 "id": f["DATA_TYPE"],
                 "index": int(f["DATA_TYPE"].split('_')[1]),
