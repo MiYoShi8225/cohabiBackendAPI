@@ -4,9 +4,6 @@
 			"path": "./cohabiBackendAPI"
 		},
 		{
-			"path": "../household_git"
-		},
-		{
 			"path": "./cohabiCognitoLambda"
 		}
 	],
