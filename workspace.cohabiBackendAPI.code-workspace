@@ -1,10 +1,13 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"path": "./cohabiBackendAPI"
 		},
 		{
 			"path": "../household_git"
+		},
+		{
+			"path": "./cohabiCognitoLambda"
 		}
 	],
 	"settings": {}

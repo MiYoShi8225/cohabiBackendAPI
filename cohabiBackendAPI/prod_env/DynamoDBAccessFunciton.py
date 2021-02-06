@@ -28,7 +28,7 @@ class Dynamo_Access:
                 post_req.groups()
 
         elif request == "GET":
-            get_req = Get_Request(group_id, date_sort)
+            get_req = Get_Request(group_id, date_sort, userid)
 
             if route == "/costs/{yyyy}/{MM}":
                 self.exe_result = get_req.costs()
@@ -40,6 +40,8 @@ class Dynamo_Access:
                 self.exe_result = get_req.calendars()
             if route == "/groups":
                 self.exe_result = get_req.groups()
+            if route == "/me":
+                self.exe_result = get_req.me()
 
         elif request == "PUT":
             put_req = Put_Request(body, group_id, data_id, userid)
@@ -52,6 +54,8 @@ class Dynamo_Access:
                 put_req.calendars()
             if route == "/groups":
                 put_req.groups()
+            if route == "/me":
+                put_req.me()
 
         elif request == "DELETE":
             put_req = Del_Request(group_id, data_id)

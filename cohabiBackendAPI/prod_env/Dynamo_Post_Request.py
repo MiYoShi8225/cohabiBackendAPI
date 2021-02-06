@@ -7,26 +7,27 @@ import json
 dynamodb = boto3.resource('dynamodb')  # AWSサービスのリソースタイプの宣言
 table = dynamodb.Table("COHABI-USER-DATABASE")  # dynamoテーブル名
 
-
-class Put_Request:
+class Post_Request:
     def __init__(self, body, group_id, data_id, userid):
         self.body = json.loads(body)
-        self.date_now = datetime.datetime.now()
         self.group_id = str(group_id)
         self.data_id = data_id
         self.user_id = userid
+        self.date_now = datetime.datetime.now()
 
     def costs(self):
         Value = self.body['value']
         Category = self.body['category']
         Comment = self.body['comment']
         GroupID = "COSTS_" + self.group_id
-        Data = self.data_id
+        self.date = self.body['date'].split(
+            '/')[0] + self.body['date'].split('/')[1] + self.body['date'].split('/')[2]
+        Date = self.date + "_" + self.date_now.strftime('%H%M%S%f')
 
         putResponse = table.put_item(
             Item={
                 'ID': GroupID,
-                'DATA_TYPE': Data,
+                'DATA_TYPE': Date,
                 'DATA_VALUE': Value,
                 'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
                 'COMMENT': Comment,
@@ -34,13 +35,31 @@ class Put_Request:
                 'USER': self.user_id
             }
         )
+
+        print(putResponse)
+
+    def categories(self):
+        GroupID = "CATEGORIES_" + self.group_id
+        Date = "No_" + str(self.body['id'])
+        Value = self.body['name']
+        Disabled = self.body['disabled']
+
+        putResponse = table.put_item(
+            Item={
+                'ID': GroupID,
+                'DATA_TYPE': Date,
+                'DATA_VALUE': Value,
+                'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
+                'DISABLED': Disabled
+            }
+        )
+
         print(putResponse)
 
     def todos(self):
         Comment = self.body['comment']
         GroupID = "TODOS_" + self.group_id
         Value = self.body['name']
-        Data = self.data_id
 
         if self.body['done'] == True:
             Status = "done"
@@ -50,7 +69,7 @@ class Put_Request:
         putResponse = table.put_item(
             Item={
                 'ID': GroupID,
-                'DATA_TYPE': Data,
+                'DATA_TYPE': self.date_now.strftime('20%y%m%d_%H%M%S%f'),
                 'DATA_VALUE': Value,
                 'COMMENT': Comment,
                 'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
@@ -63,7 +82,9 @@ class Put_Request:
     def calendars(self):
         GroupID = "CALENDARS_" + self.group_id
         Value = self.body['name']
-        Date = self.data_id
+        self.date = self.body['date'].split(
+            '/')[0] + self.body['date'].split('/')[1] + self.body['date'].split('/')[2]
+        Date = self.date + "_" + self.date_now.strftime('%H%M%S%f')
         Comment = self.body['comment']
 
         putResponse = table.put_item(
@@ -80,47 +101,29 @@ class Put_Request:
         print(putResponse)
 
     def groups(self):
-        GroupID = "GROUPS_" + self.group_id
         Name = self.body['name']
-        add_users = self.body['add_user']
-        remove_users = self.body['remove_user']
+        GroupID = "GROUPS_" + self.date_now.strftime('20%y%m%d%H%M%S%f')
 
         putResponse = table.put_item(
             Item={
                 'ID': GroupID,
-                'DATA_TYPE': "name",
-                'DATA_VALUE': Name
+                'DATA_TYPE': "groupdata",
+                'DATA_VALUE': {
+                    "name": Name
+                }
             }
         )
 
         print(putResponse)
+        
+        Users = [self.user_id]
+        putResponse2 = table.put_item(
+            Item={
+                'ID': GroupID,
+                'DATA_TYPE': "users",
+                'DATA_VALUE': Users
+            }
+        )
 
-        dynamoData = table.query(
-            KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").eq("users"))
+        print(putResponse2)
 
-        Users = []
-        for f in dynamoData["Items"]:
-            Users = f['DATA_VALUE']
-
-        if add_users.len() == 0 & remove_users.len() == 0:
-            return
-
-        """
-        闇するぎるグループにユーザーを追加するする処理(めっちゃ保留中)
-        if add_users.len() != 0:
-            Users.extend(add_users)
-        """
-
-        if remove_users.len() != 0:
-            for remove_user in remove_users:
-                Users.remove(remove_user)
-
-            putResponse2 = table.put_item(
-                Item={
-                    'ID': GroupID,
-                    'DATA_TYPE': "users",
-                    'DATA_VALUE': Users
-                }
-            )
-
-            print(putResponse2)
