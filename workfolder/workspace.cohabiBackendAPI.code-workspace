@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../cohabiBackendAPI"
+		},
+		{
+			"path": "../cohabiCognitoLambda"
+		},
+		{
+			"path": "./"
+		}
+	],
+	"settings": {}
+}
