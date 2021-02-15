@@ -13,10 +13,10 @@ class Get_Request:
     def __init__(self, group_id, date_sort, user_id):
         self.group_id = str(group_id)
         self.date_sort = date_sort
-        self.bodyItems = {}
         self.user_id = user_id
 
     def costs(self):
+        bodyItems = []
         GroupID = "COSTS_" + self.group_id
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(
@@ -27,7 +27,7 @@ class Get_Request:
             tmp = f["DATA_TYPE"].split('_')[0]
             # tmp[:4]はスタート0配列目から4ステップまで、tmp[4:6]は4配列目から6ステップまで、tmp[6:]はエンドから6配列目まで
             date_reverce_proc = tmp[:4] + "/" + tmp[4:6] + "/" + tmp[6:]
-            self.bodyItems.update({
+            bodyItems.append({
                 "date": date_reverce_proc,
                 "id": f["DATA_TYPE"],
                 "value": f["DATA_VALUE"],
@@ -36,28 +36,31 @@ class Get_Request:
                 "comment": f["COMMENT"]
             })
 
-        return self.bodyItems
+        return bodyItems
 
     def categories(self):
+        bodyItems = []
         GroupID = "CATEGORIES_" + self.group_id
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").begins_with("No"))
 
         if len(dynamoData["Items"]) == 0:
+            
             # categoriesの情報がない場合の処理(初期情報を扱う)
             pass
 
         for f in dynamoData["Items"]:
-            self.bodyItems.update({
+            bodyItems.append({
                 "id": f["DATA_TYPE"],
                 "index": int(f["DATA_TYPE"].split('_')[1]),
                 "name": f["DATA_VALUE"],
                 "disabled": f["DISABLED"]
             })
 
-        return self.bodyItems
+        return bodyItems
 
     def todos(self):
+        bodyItems = []
         GroupID = "TODOS_" + self.group_id
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(GroupID))
@@ -70,16 +73,17 @@ class Get_Request:
             else:
                 STATUS = False
 
-            self.bodyItems.update({
+            bodyItems.append({
                 "id": f["DATA_TYPE"],
                 "name": f["DATA_VALUE"],
                 "comment": f["COMMENT"],
                 "done": STATUS
             })
 
-        return self.bodyItems
+        return bodyItems
 
     def calendars(self):
+        bodyItems = []
         GroupID = "CALENDARS_" + self.group_id
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(GroupID))
@@ -89,7 +93,7 @@ class Get_Request:
             # tmp[:4]はスタート0配列目から4ステップまで、tmp[4:6]は4配列目から6ステップまで、tmp[6:]はエンドから6配列目まで
             date_reverce_proc = tmp[:4] + "/" + tmp[4:6] + "/" + tmp[6:]
 
-            self.bodyItems.update({
+            bodyItems.append({
                 "id": f["DATA_TYPE"],
                 "date": date_reverce_proc,
                 "name": f["DATA_VALUE"],
@@ -97,9 +101,10 @@ class Get_Request:
                 "user": f["USER"]
             })
 
-        return self.bodyItems
+        return bodyItems
 
     def me(self):
+        bodyItems = {}
         UserID = "USERS_" + self.user_id
         Groupdata = []
         dynamoData = table.query(
@@ -107,7 +112,7 @@ class Get_Request:
         
         for f in dynamoData["Items"]:
             if f["DATA_TYPE"] == "userdata":
-                self.bodyItems.update(f["DATA_VALUE"])
+                bodyItems.update(f["DATA_VALUE"])
 
             if f["DATA_TYPE"] == "groups":
                 for group in f["DATA_VALUE"]:
@@ -121,14 +126,15 @@ class Get_Request:
                         "name": dynamoData2["Items"][0]["DATA_VALUE"]["name"]
                     })
                     
-            self.bodyItems.update({
+            bodyItems.update({
                     "id": self.user_id,
                     "groups": Groupdata
             })
         
-        return self.bodyItems
+        return bodyItems
 
     def groups(self):
+        bodyItems = {}
         Name = None
         Users = []
         GroupID = "GROUPS_" + self.group_id
@@ -159,10 +165,10 @@ class Get_Request:
                 "name": name
             })
 
-        self.bodyItems.update({
+        bodyItems.update({
             "id": self.group_id,
             "name": Name,
             "users": Users_data
         })
 
-        return self.bodyItems
+        return bodyItems

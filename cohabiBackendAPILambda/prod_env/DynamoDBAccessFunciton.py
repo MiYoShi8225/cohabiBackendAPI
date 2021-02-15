@@ -12,7 +12,7 @@ from prod_env.Dynamo_Del_Request import Del_Request
 
 class Dynamo_Access:
     def __init__(self, request, route, body, group_id, data_id, userid, date_sort):
-        self.exe_result = dict()
+        #self.exe_result = dict()
         if request == "POST":
             post_req = Post_Request(body, group_id, data_id, userid)
 
