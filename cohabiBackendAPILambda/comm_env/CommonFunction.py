@@ -7,8 +7,9 @@ import datetime #date宣言のインポート
 class Return_Msg:
     #リターンjson形式
     def return_successJson(message, body):
-        return_Json = {"result":{"error": False,"messages": str(message)}, "body":body} #bodyはリスト[]
+        return_Json = {"result":{"error": False,"messages": str(message)}, "body": [body]} #bodyはリスト[]
         print("##success message:\n{}".format(message))
+        print("##body: {}".format(body))
         return return_Json
 
     #共通エラー関数

@@ -43,6 +43,10 @@ class Get_Request:
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").begins_with("No"))
 
+        if len(dynamoData["Items"]) == 0:
+            # categoriesの情報がない場合の処理(初期情報を扱う)
+            pass
+
         for f in dynamoData["Items"]:
             self.bodyItems.update({
                 "id": f["DATA_TYPE"],
@@ -128,19 +132,6 @@ class Get_Request:
         Name = None
         Users = []
         GroupID = "GROUPS_" + self.group_id
-        """
-        dynamoData1 = table.query(
-            KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").eq("name"))
-
-        for f in dynamoData1["Items"]:
-            Name = f['DATA_VALUE']
-
-        dynamoData2 = table.query(
-            KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").eq("users"))
-        
-        for f in dynamoData2["Items"]:
-            Users = f['DATA_VALUE']
-        """
 
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(GroupID))
