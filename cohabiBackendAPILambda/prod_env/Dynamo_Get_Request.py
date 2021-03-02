@@ -45,19 +45,25 @@ class Get_Request:
             KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").begins_with("No"))
 
         if len(dynamoData["Items"]) == 0:
-            
+
             # categoriesの情報がない場合の処理(初期情報を扱う)
             pass
 
         for f in dynamoData["Items"]:
             bodyItems.append({
                 "id": f["DATA_TYPE"],
-                "index": int(f["DATA_TYPE"].split('_')[1]),
+                # DBに保持しているindexをそのまま使用
+                "index": int(f["INDEX"]),
                 "name": f["DATA_VALUE"],
                 "disabled": f["DISABLED"]
             })
 
-        return bodyItems
+        # DBから取得したindexの情報を使用してソートする
+        sortedBodyItems = []
+        if len(bodyItems) != 0:
+            sortedBodyItems = sorted(bodyItems, key=lambda item: item['index'])
+
+        return sortedBodyItems
 
     def todos(self):
         bodyItems = []

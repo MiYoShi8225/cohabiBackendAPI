@@ -40,20 +40,32 @@ class Post_Request:
 
     def categories(self):
         GroupID = "CATEGORIES_" + self.group_id
-        Date = "No_" + str(self.body['id'])
-        Value = self.body['name']
-        Disabled = self.body['disabled']
+        # 一括更新のためbatch_writer()APIを使用
+        # TODO: batch_writer()は25件までしか一度に更新できない？
+        with table.batch_writer() as batch:
+            # body内カテゴリ配列でテーブルを更新
+            for index, item in enumerate(self.body):
 
-        putResponse = table.put_item(
-            Item={
-                'ID': GroupID,
-                'DATA_TYPE': Date,
-                'DATA_VALUE': Value,
-                'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
-                'DISABLED': Disabled
-            }
-        )
+                # idが空文字の時は新規追加なのでidを生成
+                if item['id'] == "":
+                    Date = "No_" + datetime.datetime.now().strftime('20%y%m%d%H%M%S%f')
+                else:
+                    Date = str(item['id'])
 
+                Value = item['name']
+                Disabled = item['disabled']
+                putResponse = batch.put_item(
+                    Item={
+                        'ID': GroupID,
+                        # idとして使用
+                        'DATA_TYPE': Date,
+                        'DATA_VALUE': Value,
+                        # indexを保持
+                        'INDEX': index,
+                        'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
+                        'DISABLED': Disabled
+                    }
+                )
         print(putResponse)
 
     def todos(self):
