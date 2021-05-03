@@ -43,12 +43,25 @@ class Get_Request:
         GroupID = "CATEGORIES_" + self.group_id
         dynamoData = table.query(
             KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").begins_with("No"))
-
-        if len(dynamoData["Items"]) == 0:
             
+        Date = "No_" + datetime.datetime.now().strftime('20%y%m%d%H%M%S%f')
+        
+        if len(dynamoData["Items"]) == 0:
+        
             # categoriesの情報がない場合の処理(初期情報を扱う)
-            pass
-
+            putResponse = table.put_item(
+                Item={
+                    'ID': GroupID,
+                    'DATA_TYPE': Date,
+                    'DATA_VALUE': 'default category',
+                    'TIMESTAMP': datetime.datetime.now().strftime('20%y%m%d%H%M%S%f'),
+                    'DISABLED': False
+                }
+            )
+            
+            dynamoData = table.query(
+            KeyConditionExpression=Key("ID").eq(GroupID) & Key("DATA_TYPE").begins_with("No"))
+        
         for f in dynamoData["Items"]:
             bodyItems.append({
                 "id": f["DATA_TYPE"],
@@ -56,7 +69,7 @@ class Get_Request:
                 "name": f["DATA_VALUE"],
                 "disabled": f["DISABLED"]
             })
-
+        
         return bodyItems
 
     def todos(self):
