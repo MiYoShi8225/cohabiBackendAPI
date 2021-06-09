@@ -54,6 +54,7 @@ class Get_Request:
                     'ID': GroupID,
                     'DATA_TYPE': Date,
                     'DATA_VALUE': 'default category',
+                    'INDEX': 0,
                     'TIMESTAMP': datetime.datetime.now().strftime('20%y%m%d%H%M%S%f'),
                     'DISABLED': False
                 }
