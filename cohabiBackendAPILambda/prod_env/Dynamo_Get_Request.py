@@ -65,10 +65,17 @@ class Get_Request:
         for f in dynamoData["Items"]:
             bodyItems.append({
                 "id": f["DATA_TYPE"],
-                "index": int(f["DATA_TYPE"].split('_')[1]),
+                "index": int(f["INDEX"]),
                 "name": f["DATA_VALUE"],
                 "disabled": f["DISABLED"]
             })
+        
+        # DBから取得したindexの情報を使用してソートする
+        sortedBodyItems = []
+        if len(bodyItems) != 0:
+            sortedBodyItems = sorted(bodyItems, key=lambda item: item['index'])
+        
+        bodyItems = sortedBodyItems
         
         return bodyItems
 

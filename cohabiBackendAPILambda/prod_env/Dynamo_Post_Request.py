@@ -40,21 +40,28 @@ class Post_Request:
 
     def categories(self):
         GroupID = "CATEGORIES_" + self.group_id
-        Date = "No_" + str(self.body['id'])
-        Value = self.body['name']
-        Disabled = self.body['disabled']
-
-        putResponse = table.put_item(
-            Item={
-                'ID': GroupID,
-                'DATA_TYPE': Date,
-                'DATA_VALUE': Value,
-                'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
-                'DISABLED': Disabled
-            }
-        )
-
-        print(putResponse)
+        
+        for index_no, body_info in enumerate(self.body):
+            print(index_no)
+            if body_info['id'] == "" :
+                Date = "No_" + str(self.date_now.strftime('20%y%m%d%H%M%S%f'))
+            else:
+                Date = str(body_info['id'])
+            Value = body_info['name']
+            Disabled = body_info['disabled']
+    
+            putResponse = table.put_item(
+                Item={
+                    'ID': GroupID,
+                    'DATA_TYPE': Date,
+                    'DATA_VALUE': Value,
+                    'INDEX': index_no,
+                    'TIMESTAMP': self.date_now.strftime('20%y%m%d%H%M%S%f'),
+                    'DISABLED': Disabled
+                }
+            )
+    
+            print(putResponse)
 
     def todos(self):
         Comment = self.body['comment']

@@ -22,5 +22,7 @@ def lambda_handler(event, context):
         
 
     except Exception as e:
+        import traceback
         print("##lambda_handler Error")
+        traceback.print_exc()
         return Return_Msg.return_errorJson(e)
